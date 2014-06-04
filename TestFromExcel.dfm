@@ -2,7 +2,7 @@ object FormMain: TFormMain
   Left = 849
   Top = 273
   Width = 461
-  Height = 259
+  Height = 295
   Caption = #1047#1072#1075#1088#1091#1079#1082#1072' '#1090#1077#1089#1090#1086#1074' '#1080#1079' Excel'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -46,7 +46,7 @@ object FormMain: TFormMain
   end
   object Memo1: TMemo
     Left = 0
-    Top = 131
+    Top = 167
     Width = 445
     Height = 89
     Align = alBottom
@@ -121,23 +121,23 @@ object FormMain: TFormMain
       '  N_VOPR = :OLD_N_VOPR')
     InsertSQL.Strings = (
       'insert into vopros'
-      
-        '  (N_VOPR, N_TEMA, NAME_VOPR_L, NAME_VOPR_P, TIP_VOPR, KOL_OTV, ' +
-        'VOPR_PIC)'
+      '  (N_VOPR, N_TEMA, NAME_VOPR_L, NAME_VOPR_P, TIP_VOPR, KOL_OTV, '
+      'VOPR_PIC)'
       'values'
       
         '  (:N_VOPR, :N_TEMA, :NAME_VOPR_L, :NAME_VOPR_P, :TIP_VOPR, :KOL' +
-        '_OTV, :VOPR_PIC)')
+        '_OTV, '
+      ':VOPR_PIC)')
     DeleteSQL.Strings = (
       'delete from vopros'
       'where'
       '  N_VOPR = :OLD_N_VOPR')
     Left = 368
-    Top = 56
+    Top = 48
   end
   object IBQueryQuestion: TIBQuery
     Database = IBDatabaseImport
-    Transaction = IBTransactionQuestion
+    Transaction = IBTransactionTheme
     BufferChunks = 1000
     CachedUpdates = True
     SQL.Strings = (
@@ -146,7 +146,7 @@ object FormMain: TFormMain
     GeneratorField.Field = 'N_VOPR'
     GeneratorField.Generator = 'NEW_VOPR'
     Left = 328
-    Top = 56
+    Top = 48
     object IBQueryQuestionN_VOPR: TIntegerField
       FieldName = 'N_VOPR'
       Origin = 'VOPROS.N_VOPR'
@@ -186,13 +186,157 @@ object FormMain: TFormMain
   object DataSourceQuestion: TDataSource
     DataSet = IBQueryQuestion
     Left = 288
-    Top = 56
+    Top = 48
   end
-  object IBTransactionQuestion: TIBTransaction
-    Active = True
+  object IBQueryAnswer: TIBQuery
+    Database = IBDatabaseImport
+    Transaction = IBTransactionTheme
+    BufferChunks = 1000
+    CachedUpdates = True
+    SQL.Strings = (
+      'select * from otvet')
+    UpdateObject = IBUpdateSQLAnswer
+    GeneratorField.Field = 'N_OTV'
+    GeneratorField.Generator = 'NEW_OTVET'
+    Left = 328
+    Top = 88
+    object IBQueryAnswerN_OTV: TIntegerField
+      FieldName = 'N_OTV'
+      Origin = 'OTVET.N_OTV'
+      Required = True
+    end
+    object IBQueryAnswerN_VOPR: TIntegerField
+      FieldName = 'N_VOPR'
+      Origin = 'OTVET.N_VOPR'
+      Required = True
+    end
+    object IBQueryAnswerNAME_OTV: TIBStringField
+      FieldName = 'NAME_OTV'
+      Origin = 'OTVET.NAME_OTV'
+      Size = 255
+    end
+    object IBQueryAnswerPR_PR: TSmallintField
+      FieldName = 'PR_PR'
+      Origin = 'OTVET.PR_PR'
+      Required = True
+    end
+    object IBQueryAnswerN_OTV_S: TIntegerField
+      FieldName = 'N_OTV_S'
+      Origin = 'OTVET.N_OTV_S'
+    end
+    object IBQueryAnswerOTV_PIC: TBlobField
+      FieldName = 'OTV_PIC'
+      Origin = 'OTVET.OTV_PIC'
+      Size = 8
+    end
+  end
+  object DataSourceAnswer: TDataSource
+    DataSet = IBQueryAnswer
+    Left = 288
+    Top = 88
+  end
+  object IBUpdateSQLAnswer: TIBUpdateSQL
+    RefreshSQL.Strings = (
+      'Select '
+      '  N_OTV,'
+      '  N_VOPR,'
+      '  NAME_OTV,'
+      '  PR_PR,'
+      '  N_OTV_S,'
+      '  OTV_PIC'
+      'from otvet '
+      'where'
+      '  N_OTV = :N_OTV')
+    ModifySQL.Strings = (
+      'update otvet'
+      'set'
+      '  N_OTV = :N_OTV,'
+      '  N_VOPR = :N_VOPR,'
+      '  NAME_OTV = :NAME_OTV,'
+      '  PR_PR = :PR_PR,'
+      '  N_OTV_S = :N_OTV_S,'
+      '  OTV_PIC = :OTV_PIC'
+      'where'
+      '  N_OTV = :OLD_N_OTV')
+    InsertSQL.Strings = (
+      'insert into otvet'
+      '  (N_OTV, N_VOPR, NAME_OTV, PR_PR, N_OTV_S, OTV_PIC)'
+      'values'
+      '  (:N_OTV, :N_VOPR, :NAME_OTV, :PR_PR, :N_OTV_S, :OTV_PIC)')
+    DeleteSQL.Strings = (
+      'delete from otvet'
+      'where'
+      '  N_OTV = :OLD_N_OTV')
+    Left = 368
+    Top = 88
+  end
+  object DataSourceTheme: TDataSource
+    DataSet = IBQueryTheme
+    Left = 288
+    Top = 128
+  end
+  object IBQueryTheme: TIBQuery
+    Database = IBDatabaseImport
+    Transaction = IBTransactionTheme
+    BufferChunks = 1000
+    CachedUpdates = True
+    SQL.Strings = (
+      'select * from tema')
+    UpdateObject = IBUpdateSQLTheme
+    GeneratorField.Field = 'N_TEMA'
+    GeneratorField.Generator = 'NEW_TEMA'
+    Left = 328
+    Top = 128
+    object IBQueryThemeN_TEMA: TIntegerField
+      FieldName = 'N_TEMA'
+      Origin = 'TEMA.N_TEMA'
+      Required = True
+    end
+    object IBQueryThemeNAME_TEMA: TIBStringField
+      FieldName = 'NAME_TEMA'
+      Origin = 'TEMA.NAME_TEMA'
+      Size = 255
+    end
+    object IBQueryThemeKOL_VOPR: TIntegerField
+      FieldName = 'KOL_VOPR'
+      Origin = 'TEMA.KOL_VOPR'
+      Required = True
+    end
+  end
+  object IBUpdateSQLTheme: TIBUpdateSQL
+    RefreshSQL.Strings = (
+      'Select '
+      '  N_TEMA,'
+      '  NAME_TEMA,'
+      '  KOL_VOPR'
+      'from tema '
+      'where'
+      '  N_TEMA = :N_TEMA')
+    ModifySQL.Strings = (
+      'update tema'
+      'set'
+      '  N_TEMA = :N_TEMA,'
+      '  NAME_TEMA = :NAME_TEMA,'
+      '  KOL_VOPR = :KOL_VOPR'
+      'where'
+      '  N_TEMA = :OLD_N_TEMA')
+    InsertSQL.Strings = (
+      'insert into tema'
+      '  (N_TEMA, NAME_TEMA, KOL_VOPR)'
+      'values'
+      '  (:N_TEMA, :NAME_TEMA, :KOL_VOPR)')
+    DeleteSQL.Strings = (
+      'delete from tema'
+      'where'
+      '  N_TEMA = :OLD_N_TEMA')
+    Left = 368
+    Top = 128
+  end
+  object IBTransactionTheme: TIBTransaction
+    Active = False
     DefaultDatabase = IBDatabaseImport
     AutoStopAction = saNone
     Left = 408
-    Top = 56
+    Top = 128
   end
 end

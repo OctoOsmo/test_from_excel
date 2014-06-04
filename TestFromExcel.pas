@@ -29,7 +29,22 @@ type
     IBQueryQuestionKOL_OTV: TIntegerField;
     IBQueryQuestionVOPR_PIC: TBlobField;
     Button1: TButton;
-    IBTransactionQuestion: TIBTransaction;
+    IBQueryAnswer: TIBQuery;
+    DataSourceAnswer: TDataSource;
+    IBUpdateSQLAnswer: TIBUpdateSQL;
+    DataSourceTheme: TDataSource;
+    IBQueryTheme: TIBQuery;
+    IBUpdateSQLTheme: TIBUpdateSQL;
+    IBQueryAnswerN_OTV: TIntegerField;
+    IBQueryAnswerN_VOPR: TIntegerField;
+    IBQueryAnswerNAME_OTV: TIBStringField;
+    IBQueryAnswerPR_PR: TSmallintField;
+    IBQueryAnswerN_OTV_S: TIntegerField;
+    IBQueryAnswerOTV_PIC: TBlobField;
+    IBQueryThemeN_TEMA: TIntegerField;
+    IBQueryThemeNAME_TEMA: TIBStringField;
+    IBQueryThemeKOL_VOPR: TIntegerField;
+    IBTransactionTheme: TIBTransaction;
     procedure ButtonOpenClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
@@ -105,60 +120,90 @@ function AddTheme(themeName: string): integer;
 var
   sqlText: string;
 begin
-//INSERT INTO TEMA (NAME_TEMA, KOL_VOPR) VALUES ('NewTheme', 0)
-  sqlText := 'INSERT INTO TEMA (NAME_TEMA, KOL_VOPR) VALUES ('''+themeName+''', 0)';
+  {sqlText := 'INSERT INTO TEMA (NAME_TEMA, KOL_VOPR) VALUES ('''+themeName+''', 0)';
   SetSQL(FormMain.IBQueryImport, sqlText);
   FormMain.IBQueryImport.ExecSQL;
   sqlText := 'select max(N_TEMA) from TEMA';
   SetSQL(FormMain.IBQueryImport, sqlText);
   FormMain.IBQueryImport.Open;
-  Result := FormMain.IBQueryImport.FieldByName('MAX').AsInteger;
+  Result := FormMain.IBQueryImport.FieldByName('MAX').AsInteger;}
+  FormMain.IBQueryTheme.Open;
+  FormMain.IBQueryTheme.Insert;
+  FormMain.IBQueryThemeNAME_TEMA.Value := themeName;
+  FormMain.IBQueryThemeKOL_VOPR.Value := 0;
+  {FormMain.IBQueryTheme.ApplyUpdates;
+  FormMain.IBTransactionTheme.CommitRetaining;}
+  Result := FormMain.IBQueryThemeN_TEMA.Value;
+  //FormMain.IBQueryTheme.Close;
 end;
 
 function AddQuestion(themeNum: integer; questionText: string): integer;
 var
   sqlText: string;
 begin
-  sqlText := 'insert into vopros (n_tema, name_vopr_l, name_vopr_p, tip_vopr, kol_otv) values('+IntToStr(themeNum)+', '''+questionText+''', '''', 1, 0)';
+  {sqlText := 'insert into vopros (n_tema, name_vopr_l, name_vopr_p, tip_vopr, kol_otv) values('+IntToStr(themeNum)+', '''+questionText+''', '''', 1, 0)';
   SetSQL(FormMain.IBQueryImport, sqlText);
   FormMain.IBQueryImport.ExecSQL;
   sqlText := 'select max(N_VOPR) from VOPROS';
   SetSQL(FormMain.IBQueryImport, sqlText);
   FormMain.IBQueryImport.Open;
-  Result := FormMain.IBQueryImport.FieldByName('MAX').AsInteger;
-
- //sqlText := 'INSERT INTO TEMA (NAME_TEMA, KOL_VOPR) VALUES ('''+themeName+''', 0)';
+  Result := FormMain.IBQueryImport.FieldByName('MAX').AsInteger;}
+  FormMain.IBQueryQuestion.Open;
+  FormMain.IBQueryQuestion.Insert;
+  FormMain.IBQueryQuestionN_TEMA.Value := themeNum;
+  FormMain.IBQueryQuestionNAME_VOPR_L.Value := questionText;
+  FormMain.IBQueryQuestionKOL_OTV.Value := 0;
+  FormMain.IBQueryQuestionTIP_VOPR.Value := 1;
+  {FormMain.IBQueryQuestion.ApplyUpdates;
+  FormMain.IBTransactionQuestion.CommitRetaining;}
+  Result := FormMain.IBQueryQuestionN_VOPR.Value;
+  //FormMain.IBQueryQuestion.Close;
 end;
 
 function AddAnswer(questionNum: integer; answer: string; isRight: integer): integer;
 var
   sqlText: string;
 begin
-  sqlText := 'insert into otvet (n_vopr, name_otv, pr_pr) values ('+IntToStr(questionNum)+', '''+answer+''', '+IntToStr(isRight)+')';
+  {sqlText := 'insert into otvet (n_vopr, name_otv, pr_pr) values ('+IntToStr(questionNum)+', '''+answer+''', '+IntToStr(isRight)+')';
   SetSQL(FormMain.IBQueryImport, sqlText);
   FormMain.IBQueryImport.ExecSQL;
   sqlText := 'select max(n_otv) from otvet';  
   SetSQL(FormMain.IBQueryImport, sqlText);
   FormMain.IBQueryImport.Open;
-  Result := FormMain.IBQueryImport.FieldByName('MAX').AsInteger;
+  Result := FormMain.IBQueryImport.FieldByName('MAX').AsInteger; }
+  FormMain.IBQueryAnswer.Open;
+  FormMain.IBQueryAnswer.Insert;
+  FormMain.IBQueryAnswerN_VOPR.Value := questionNum;
+  FormMain.IBQueryAnswerNAME_OTV.Value := answer;
+  FormMain.IBQueryAnswerPR_PR.Value := isRight;
+  {FormMain.IBQueryAnswer.ApplyUpdates;
+  FormMain.IBTransactionAnswer.CommitRetaining;}
+  Result := FormMain.IBQueryAnswerN_OTV.Value;
+  //FormMain.IBQueryAnswer.Close;
 end;
 
 procedure SetAnsCout(questionNum: integer; ansCount: integer);
 var  
   sqlText: string;
 begin
-  sqlText:= 'update vopros v set v.kol_otv ='+IntToStr(ansCount)+' where v.n_vopr = '+IntToStr(questionNum)+'';
+  {sqlText:= 'update vopros v set v.kol_otv ='+IntToStr(ansCount)+' where v.n_vopr = '+IntToStr(questionNum)+'';
   SetSQL(FormMain.IBQueryImport, sqlText);
-  FormMain.IBQueryImport.ExecSQL;
+  FormMain.IBQueryImport.ExecSQL;}
+  FormMain.IBQueryQuestion.Open;
+  FormMain.IBQueryQuestion.Edit;
+  FormMain.IBQueryQuestionKOL_OTV.Value := ansCount;
 end;
 
 procedure SetQuestCout(themeNum: integer; questCount: integer);
 var  
   sqlText: string;
 begin
-  sqlText:= 'update tema t set t.kol_vopr ='+IntToStr(questCount)+' where t.n_tema = '+IntToStr(themeNum)+'';
+  {sqlText:= 'update tema t set t.kol_vopr ='+IntToStr(questCount)+' where t.n_tema = '+IntToStr(themeNum)+'';
   SetSQL(FormMain.IBQueryImport, sqlText);
-  FormMain.IBQueryImport.ExecSQL;
+  FormMain.IBQueryImport.ExecSQL; }
+  FormMain.IBQueryTheme.Open;
+  FormMain.IBQueryTheme.Edit;
+  FormMain.IBQueryThemeKOL_VOPR.Value := questCount;
 end;
 
 procedure TFormMain.ButtonOpenClick(Sender: TObject);
@@ -226,6 +271,17 @@ begin
   Excel.ActiveWorkbook.Close;
   Excel.Application.Quit;
   FormMain.IBTransactionImport.CommitRetaining;
+  FormMain.IBQueryTheme.ApplyUpdates;
+  //FormMain.IBTransactionTheme.CommitRetaining;
+  FormMain.IBQueryQuestion.ApplyUpdates;
+  //FormMain.IBTransactionQuestion.CommitRetaining;
+  FormMain.IBQueryAnswer.ApplyUpdates;
+  //FormMain.IBTransactionAnswer.CommitRetaining;
+  FormMain.IBTransactionTheme.CommitRetaining;
+  FormMain.IBQueryTheme.Close;
+  FormMain.IBQueryQuestion.Close;
+  FormMain.IBQueryAnswer.Close;
+
 end;
 
 procedure TFormMain.FormCreate(Sender: TObject);
@@ -237,12 +293,12 @@ procedure TFormMain.Button1Click(Sender: TObject);
 begin
   IBQueryQuestion.Open;
   IBQueryQuestion.Insert;
-  IBQueryQuestionN_TEMA.Value := 123;
+  IBQueryQuestionN_TEMA.Value := 124;
   IBQueryQuestionTIP_VOPR.Value := 1;
   IBQueryQuestionKOL_OTV.Value := 0;
-  IBQueryQuestion.ApplyUpdates;
-  IBTransactionQuestion.CommitRetaining;
   ShowMessage(IBQueryQuestionN_VOPR.Text);
+  {IBQueryQuestion.ApplyUpdates;
+  IBTransactionQuestion.CommitRetaining;}
   IBQueryQuestion.Close;
 end;
 

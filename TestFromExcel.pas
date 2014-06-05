@@ -10,9 +10,7 @@ uses
 
 type
   TFormMain = class(TForm)
-    IBQueryImport: TIBQuery;
     IBDatabaseImport: TIBDatabase;
-    IBTransactionImport: TIBTransaction;
     ButtonOpen: TButton;
     LabelCurrentQuestion: TLabel;
     Memo1: TMemo;
@@ -20,7 +18,6 @@ type
     LabelFilePath: TLabel;
     IBUpdateSQLQuestion: TIBUpdateSQL;
     IBQueryQuestion: TIBQuery;
-    DataSourceQuestion: TDataSource;
     IBQueryQuestionN_VOPR: TIntegerField;
     IBQueryQuestionN_TEMA: TIntegerField;
     IBQueryQuestionNAME_VOPR_L: TIBStringField;
@@ -28,11 +25,8 @@ type
     IBQueryQuestionTIP_VOPR: TSmallintField;
     IBQueryQuestionKOL_OTV: TIntegerField;
     IBQueryQuestionVOPR_PIC: TBlobField;
-    Button1: TButton;
     IBQueryAnswer: TIBQuery;
-    DataSourceAnswer: TDataSource;
     IBUpdateSQLAnswer: TIBUpdateSQL;
-    DataSourceTheme: TDataSource;
     IBQueryTheme: TIBQuery;
     IBUpdateSQLTheme: TIBUpdateSQL;
     IBQueryAnswerN_OTV: TIntegerField;
@@ -45,9 +39,10 @@ type
     IBQueryThemeNAME_TEMA: TIBStringField;
     IBQueryThemeKOL_VOPR: TIntegerField;
     IBTransactionTheme: TIBTransaction;
+    LabelStatus: TLabel;
+    ListBoxFileList: TListBox;
     procedure ButtonOpenClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -67,21 +62,25 @@ implementation
 
 {$R *.dfm}
 
-{function LastPos(SubStr, S: string): Integer;
+procedure GetAllFiles( Path: string; Lb: TListBox );
 var
- Found, Len, Pos: integer;
+sRec: TSearchRec;
+isFound: boolean;
 begin
- Pos := Length(S);
- Len := Length(SubStr);
- Found := 0;
- while (Pos > 0) and (Found = 0) do
- begin
-   if Copy(S, Pos, Len) = SubStr then
-     Found := Pos;
-   Dec(Pos);
- end;
- LastPos := Found;
-end;}
+isFound := FindFirst( Path + С\*.*Т, faAnyFile, sRec ) = 0;
+while isFound do
+begin
+if ( sRec.Name <> С.Т ) and ( sRec.Name <> С..Т ) then
+begin
+if ( sRec.Attr and faDirectory ) = faDirectory then
+GetAllFiles( Path + С\Т + sRec.Name, Lb );
+Lb.Items.Add( Path + С\Т + sRec.Name );
+end;
+Application.ProcessMessages;
+isFound := FindNext( sRec ) = 0;
+end;
+FindClose( sRec );
+end;
 
 procedure TFormMain.WMDropFiles(var Msg: TMessage);
 Var
@@ -91,10 +90,10 @@ begin
 DragQueryFile(THandle(Msg.WParam),0,Filename,SizeOf(Filename));
 // “еперь в переменной Filename будет находитьс€ путь 
 // к перетаскиваемому файлу. ƒалее вы можете выполн€ть с этим файлом, зна€ 
-// его путь, все что угодно. 
+// его путь, все что угодно.
 
 //Ќапример: «агрузить его в Memo 
-Memo1.lines.loadfromfile(Filename);
+//Memo1.lines.loadfromfile(Filename);
 
 //¬ывод имени файла
 filePath := Filename;
@@ -106,101 +105,48 @@ FormMain.Width := FormMain.LabelFilePath.Width + FormMain.LabelFilePath.Left + 2
 
 //—ообщаем об окончании претаскивани€ 
 DragFinish(THandle(Msg.WParam));
-end;
-
-procedure SetSQL(q: TIBQuery; sqlText: string);
-begin
-q.Close;
-q.SQL.Clear;
-q.SQL.Append(sqlText);
-//q.Open;
+GetAllFiles(filePath, FormMain.ListBoxFileList);
 end;
 
 function AddTheme(themeName: string): integer;
-var
-  sqlText: string;
 begin
-  {sqlText := 'INSERT INTO TEMA (NAME_TEMA, KOL_VOPR) VALUES ('''+themeName+''', 0)';
-  SetSQL(FormMain.IBQueryImport, sqlText);
-  FormMain.IBQueryImport.ExecSQL;
-  sqlText := 'select max(N_TEMA) from TEMA';
-  SetSQL(FormMain.IBQueryImport, sqlText);
-  FormMain.IBQueryImport.Open;
-  Result := FormMain.IBQueryImport.FieldByName('MAX').AsInteger;}
   FormMain.IBQueryTheme.Open;
   FormMain.IBQueryTheme.Insert;
   FormMain.IBQueryThemeNAME_TEMA.Value := themeName;
   FormMain.IBQueryThemeKOL_VOPR.Value := 0;
-  {FormMain.IBQueryTheme.ApplyUpdates;
-  FormMain.IBTransactionTheme.CommitRetaining;}
   Result := FormMain.IBQueryThemeN_TEMA.Value;
-  //FormMain.IBQueryTheme.Close;
 end;
 
 function AddQuestion(themeNum: integer; questionText: string): integer;
-var
-  sqlText: string;
 begin
-  {sqlText := 'insert into vopros (n_tema, name_vopr_l, name_vopr_p, tip_vopr, kol_otv) values('+IntToStr(themeNum)+', '''+questionText+''', '''', 1, 0)';
-  SetSQL(FormMain.IBQueryImport, sqlText);
-  FormMain.IBQueryImport.ExecSQL;
-  sqlText := 'select max(N_VOPR) from VOPROS';
-  SetSQL(FormMain.IBQueryImport, sqlText);
-  FormMain.IBQueryImport.Open;
-  Result := FormMain.IBQueryImport.FieldByName('MAX').AsInteger;}
   FormMain.IBQueryQuestion.Open;
   FormMain.IBQueryQuestion.Insert;
   FormMain.IBQueryQuestionN_TEMA.Value := themeNum;
   FormMain.IBQueryQuestionNAME_VOPR_L.Value := questionText;
   FormMain.IBQueryQuestionKOL_OTV.Value := 0;
   FormMain.IBQueryQuestionTIP_VOPR.Value := 1;
-  {FormMain.IBQueryQuestion.ApplyUpdates;
-  FormMain.IBTransactionQuestion.CommitRetaining;}
   Result := FormMain.IBQueryQuestionN_VOPR.Value;
-  //FormMain.IBQueryQuestion.Close;
 end;
 
 function AddAnswer(questionNum: integer; answer: string; isRight: integer): integer;
-var
-  sqlText: string;
 begin
-  {sqlText := 'insert into otvet (n_vopr, name_otv, pr_pr) values ('+IntToStr(questionNum)+', '''+answer+''', '+IntToStr(isRight)+')';
-  SetSQL(FormMain.IBQueryImport, sqlText);
-  FormMain.IBQueryImport.ExecSQL;
-  sqlText := 'select max(n_otv) from otvet';  
-  SetSQL(FormMain.IBQueryImport, sqlText);
-  FormMain.IBQueryImport.Open;
-  Result := FormMain.IBQueryImport.FieldByName('MAX').AsInteger; }
   FormMain.IBQueryAnswer.Open;
   FormMain.IBQueryAnswer.Insert;
   FormMain.IBQueryAnswerN_VOPR.Value := questionNum;
   FormMain.IBQueryAnswerNAME_OTV.Value := answer;
   FormMain.IBQueryAnswerPR_PR.Value := isRight;
-  {FormMain.IBQueryAnswer.ApplyUpdates;
-  FormMain.IBTransactionAnswer.CommitRetaining;}
   Result := FormMain.IBQueryAnswerN_OTV.Value;
-  //FormMain.IBQueryAnswer.Close;
 end;
 
 procedure SetAnsCout(questionNum: integer; ansCount: integer);
-var  
-  sqlText: string;
 begin
-  {sqlText:= 'update vopros v set v.kol_otv ='+IntToStr(ansCount)+' where v.n_vopr = '+IntToStr(questionNum)+'';
-  SetSQL(FormMain.IBQueryImport, sqlText);
-  FormMain.IBQueryImport.ExecSQL;}
   FormMain.IBQueryQuestion.Open;
   FormMain.IBQueryQuestion.Edit;
   FormMain.IBQueryQuestionKOL_OTV.Value := ansCount;
 end;
 
 procedure SetQuestCout(themeNum: integer; questCount: integer);
-var  
-  sqlText: string;
 begin
-  {sqlText:= 'update tema t set t.kol_vopr ='+IntToStr(questCount)+' where t.n_tema = '+IntToStr(themeNum)+'';
-  SetSQL(FormMain.IBQueryImport, sqlText);
-  FormMain.IBQueryImport.ExecSQL; }
   FormMain.IBQueryTheme.Open;
   FormMain.IBQueryTheme.Edit;
   FormMain.IBQueryThemeKOL_VOPR.Value := questCount;
@@ -208,10 +154,11 @@ end;
 
 procedure TFormMain.ButtonOpenClick(Sender: TObject);
 var
- Question, tmp: string;
- colCount, i, j, curRow, curCol, questionNum, themeNum, questCount, ansCount, isRight: integer;
+ Question: string;
+ i, curRow, curCol, questionNum, themeNum, questCount, ansCount, isRight: integer;
  ansArray : Array[1..20] of string;
 begin
+  FormMain.LabelStatus.Caption := '—татус: обработка...';
   Excel := CreateOleObject('Excel.Application');
   Excel.Workbooks.Open[filePath];//, 0, True];
   //Excel.Visible := True;
@@ -226,9 +173,6 @@ begin
   Question := Trim(Excel.Cells[curRow, curCol]);
   while('' <> Question) do
   begin
-    //--------------------------
-
-    //--------------------------
     //¬вод в тему нового вопроса
     i:=0;
     questionNum := AddQuestion(themeNum, Question);
@@ -270,36 +214,19 @@ begin
   //«акрытие Excel
   Excel.ActiveWorkbook.Close;
   Excel.Application.Quit;
-  FormMain.IBTransactionImport.CommitRetaining;
   FormMain.IBQueryTheme.ApplyUpdates;
-  //FormMain.IBTransactionTheme.CommitRetaining;
   FormMain.IBQueryQuestion.ApplyUpdates;
-  //FormMain.IBTransactionQuestion.CommitRetaining;
   FormMain.IBQueryAnswer.ApplyUpdates;
-  //FormMain.IBTransactionAnswer.CommitRetaining;
   FormMain.IBTransactionTheme.CommitRetaining;
   FormMain.IBQueryTheme.Close;
   FormMain.IBQueryQuestion.Close;
   FormMain.IBQueryAnswer.Close;
-
+  FormMain.LabelStatus.Caption := '—татус: ожидание.';
 end;
 
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
   DragAcceptFiles(Handle,True);
-end;
-
-procedure TFormMain.Button1Click(Sender: TObject);
-begin
-  IBQueryQuestion.Open;
-  IBQueryQuestion.Insert;
-  IBQueryQuestionN_TEMA.Value := 124;
-  IBQueryQuestionTIP_VOPR.Value := 1;
-  IBQueryQuestionKOL_OTV.Value := 0;
-  ShowMessage(IBQueryQuestionN_VOPR.Text);
-  {IBQueryQuestion.ApplyUpdates;
-  IBTransactionQuestion.CommitRetaining;}
-  IBQueryQuestion.Close;
 end;
 
 end.

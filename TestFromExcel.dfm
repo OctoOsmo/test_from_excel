@@ -1,8 +1,8 @@
 object FormMain: TFormMain
   Left = 849
   Top = 273
-  Width = 461
-  Height = 295
+  Width = 773
+  Height = 252
   Caption = #1047#1072#1075#1088#1091#1079#1082#1072' '#1090#1077#1089#1090#1086#1074' '#1080#1079' Excel'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -35,6 +35,13 @@ object FormMain: TFormMain
     Height = 13
     Caption = #1055#1091#1090#1100' '#1082' '#1092#1072#1081#1083#1091':'
   end
+  object LabelStatus: TLabel
+    Left = 192
+    Top = 8
+    Width = 93
+    Height = 13
+    Caption = #1057#1090#1072#1090#1091#1089': '#1086#1078#1080#1076#1072#1085#1080#1077'.'
+  end
   object ButtonOpen: TButton
     Left = 8
     Top = 88
@@ -46,8 +53,8 @@ object FormMain: TFormMain
   end
   object Memo1: TMemo
     Left = 0
-    Top = 167
-    Width = 445
+    Top = 124
+    Width = 757
     Height = 89
     Align = alBottom
     Lines.Strings = (
@@ -55,22 +62,14 @@ object FormMain: TFormMain
     ScrollBars = ssVertical
     TabOrder = 1
   end
-  object Button1: TButton
-    Left = 128
-    Top = 88
-    Width = 75
-    Height = 25
-    Caption = 'Button1'
+  object ListBoxFileList: TListBox
+    Left = 448
+    Top = 0
+    Width = 309
+    Height = 124
+    Align = alRight
+    ItemHeight = 13
     TabOrder = 2
-    OnClick = Button1Click
-  end
-  object IBQueryImport: TIBQuery
-    Database = IBDatabaseImport
-    Transaction = IBTransactionImport
-    BufferChunks = 1000
-    CachedUpdates = False
-    Left = 328
-    Top = 8
   end
   object IBDatabaseImport: TIBDatabase
     Connected = True
@@ -80,19 +79,11 @@ object FormMain: TFormMain
       'password=masterkey'
       'lc_ctype=WIN1251')
     LoginPrompt = False
-    DefaultTransaction = IBTransactionImport
     IdleTimer = 0
     SQLDialect = 1
     TraceFlags = []
-    Left = 368
-    Top = 8
-  end
-  object IBTransactionImport: TIBTransaction
-    Active = True
-    DefaultDatabase = IBDatabaseImport
-    AutoStopAction = saNone
-    Left = 408
-    Top = 8
+    Left = 128
+    Top = 88
   end
   object IBUpdateSQLQuestion: TIBUpdateSQL
     RefreshSQL.Strings = (
@@ -132,8 +123,8 @@ object FormMain: TFormMain
       'delete from vopros'
       'where'
       '  N_VOPR = :OLD_N_VOPR')
-    Left = 368
-    Top = 48
+    Left = 208
+    Top = 88
   end
   object IBQueryQuestion: TIBQuery
     Database = IBDatabaseImport
@@ -145,8 +136,8 @@ object FormMain: TFormMain
     UpdateObject = IBUpdateSQLQuestion
     GeneratorField.Field = 'N_VOPR'
     GeneratorField.Generator = 'NEW_VOPR'
-    Left = 328
-    Top = 48
+    Left = 168
+    Top = 88
     object IBQueryQuestionN_VOPR: TIntegerField
       FieldName = 'N_VOPR'
       Origin = 'VOPROS.N_VOPR'
@@ -183,11 +174,6 @@ object FormMain: TFormMain
       Size = 8
     end
   end
-  object DataSourceQuestion: TDataSource
-    DataSet = IBQueryQuestion
-    Left = 288
-    Top = 48
-  end
   object IBQueryAnswer: TIBQuery
     Database = IBDatabaseImport
     Transaction = IBTransactionTheme
@@ -198,7 +184,7 @@ object FormMain: TFormMain
     UpdateObject = IBUpdateSQLAnswer
     GeneratorField.Field = 'N_OTV'
     GeneratorField.Generator = 'NEW_OTVET'
-    Left = 328
+    Left = 248
     Top = 88
     object IBQueryAnswerN_OTV: TIntegerField
       FieldName = 'N_OTV'
@@ -229,11 +215,6 @@ object FormMain: TFormMain
       Origin = 'OTVET.OTV_PIC'
       Size = 8
     end
-  end
-  object DataSourceAnswer: TDataSource
-    DataSet = IBQueryAnswer
-    Left = 288
-    Top = 88
   end
   object IBUpdateSQLAnswer: TIBUpdateSQL
     RefreshSQL.Strings = (
@@ -267,13 +248,8 @@ object FormMain: TFormMain
       'delete from otvet'
       'where'
       '  N_OTV = :OLD_N_OTV')
-    Left = 368
-    Top = 88
-  end
-  object DataSourceTheme: TDataSource
-    DataSet = IBQueryTheme
     Left = 288
-    Top = 128
+    Top = 88
   end
   object IBQueryTheme: TIBQuery
     Database = IBDatabaseImport
@@ -286,7 +262,7 @@ object FormMain: TFormMain
     GeneratorField.Field = 'N_TEMA'
     GeneratorField.Generator = 'NEW_TEMA'
     Left = 328
-    Top = 128
+    Top = 88
     object IBQueryThemeN_TEMA: TIntegerField
       FieldName = 'N_TEMA'
       Origin = 'TEMA.N_TEMA'
@@ -330,13 +306,13 @@ object FormMain: TFormMain
       'where'
       '  N_TEMA = :OLD_N_TEMA')
     Left = 368
-    Top = 128
+    Top = 88
   end
   object IBTransactionTheme: TIBTransaction
     Active = False
     DefaultDatabase = IBDatabaseImport
     AutoStopAction = saNone
     Left = 408
-    Top = 128
+    Top = 88
   end
 end

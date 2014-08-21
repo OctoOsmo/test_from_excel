@@ -1,8 +1,8 @@
 object FormMain: TFormMain
-  Left = 849
-  Top = 273
-  Width = 773
-  Height = 252
+  Left = 435
+  Top = 282
+  Width = 976
+  Height = 256
   Caption = #1047#1072#1075#1088#1091#1079#1082#1072' '#1090#1077#1089#1090#1086#1074' '#1080#1079' Excel'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -53,8 +53,8 @@ object FormMain: TFormMain
   end
   object Memo1: TMemo
     Left = 0
-    Top = 124
-    Width = 757
+    Top = 128
+    Width = 960
     Height = 89
     Align = alBottom
     Lines.Strings = (
@@ -63,13 +63,23 @@ object FormMain: TFormMain
     TabOrder = 1
   end
   object ListBoxFileList: TListBox
-    Left = 448
+    Left = 496
     Top = 0
-    Width = 309
-    Height = 124
+    Width = 464
+    Height = 128
     Align = alRight
     ItemHeight = 13
     TabOrder = 2
+    Visible = False
+  end
+  object ButtonPutStudents: TButton
+    Left = 120
+    Top = 88
+    Width = 169
+    Height = 25
+    Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1089#1087#1080#1089#1086#1082' '#1089#1090#1091#1076#1077#1085#1090#1086#1074
+    TabOrder = 3
+    OnClick = ButtonPutStudentsClick
   end
   object IBDatabaseImport: TIBDatabase
     Connected = True
@@ -79,11 +89,12 @@ object FormMain: TFormMain
       'password=masterkey'
       'lc_ctype=WIN1251')
     LoginPrompt = False
+    DefaultTransaction = IBTransactionTheme
     IdleTimer = 0
     SQLDialect = 1
     TraceFlags = []
-    Left = 128
-    Top = 88
+    Left = 88
+    Top = 48
   end
   object IBUpdateSQLQuestion: TIBUpdateSQL
     RefreshSQL.Strings = (
@@ -123,8 +134,8 @@ object FormMain: TFormMain
       'delete from vopros'
       'where'
       '  N_VOPR = :OLD_N_VOPR')
-    Left = 208
-    Top = 88
+    Left = 168
+    Top = 48
   end
   object IBQueryQuestion: TIBQuery
     Database = IBDatabaseImport
@@ -136,8 +147,8 @@ object FormMain: TFormMain
     UpdateObject = IBUpdateSQLQuestion
     GeneratorField.Field = 'N_VOPR'
     GeneratorField.Generator = 'NEW_VOPR'
-    Left = 168
-    Top = 88
+    Left = 128
+    Top = 48
     object IBQueryQuestionN_VOPR: TIntegerField
       FieldName = 'N_VOPR'
       Origin = 'VOPROS.N_VOPR'
@@ -184,8 +195,8 @@ object FormMain: TFormMain
     UpdateObject = IBUpdateSQLAnswer
     GeneratorField.Field = 'N_OTV'
     GeneratorField.Generator = 'NEW_OTVET'
-    Left = 248
-    Top = 88
+    Left = 208
+    Top = 48
     object IBQueryAnswerN_OTV: TIntegerField
       FieldName = 'N_OTV'
       Origin = 'OTVET.N_OTV'
@@ -248,8 +259,8 @@ object FormMain: TFormMain
       'delete from otvet'
       'where'
       '  N_OTV = :OLD_N_OTV')
-    Left = 288
-    Top = 88
+    Left = 248
+    Top = 48
   end
   object IBQueryTheme: TIBQuery
     Database = IBDatabaseImport
@@ -261,8 +272,8 @@ object FormMain: TFormMain
     UpdateObject = IBUpdateSQLTheme
     GeneratorField.Field = 'N_TEMA'
     GeneratorField.Generator = 'NEW_TEMA'
-    Left = 328
-    Top = 88
+    Left = 288
+    Top = 48
     object IBQueryThemeN_TEMA: TIntegerField
       FieldName = 'N_TEMA'
       Origin = 'TEMA.N_TEMA'
@@ -305,14 +316,20 @@ object FormMain: TFormMain
       'delete from tema'
       'where'
       '  N_TEMA = :OLD_N_TEMA')
-    Left = 368
-    Top = 88
+    Left = 328
+    Top = 48
   end
   object IBTransactionTheme: TIBTransaction
-    Active = False
+    Active = True
     DefaultDatabase = IBDatabaseImport
     AutoStopAction = saNone
+    Left = 368
+    Top = 48
+  end
+  object IBQueryStudents: TIBQuery
+    BufferChunks = 1000
+    CachedUpdates = False
     Left = 408
-    Top = 88
+    Top = 48
   end
 end

@@ -7,7 +7,6 @@ uses
   Dialogs, ComObj, IBDatabase, DB, IBCustomDataSet, IBQuery, StdCtrls, ShellAPI,
   IBUpdateSQL;
 
-
 type
   TFormMain = class(TForm)
     IBDatabaseImport: TIBDatabase;
@@ -41,13 +40,16 @@ type
     IBTransactionTheme: TIBTransaction;
     LabelStatus: TLabel;
     ListBoxFileList: TListBox;
+    ButtonPutStudents: TButton;
+    IBQueryStudents: TIBQuery;
     procedure ButtonOpenClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure ButtonPutStudentsClick(Sender: TObject);
   private
     { Private declarations }
   protected
-    procedure WMDropFiles (var Msg: TMessage);
-    message wm_DropFiles;
+    procedure WMDropFiles(var Msg: TMessage);
+      message wm_DropFiles;
   public
     { Public declarations }
   end;
@@ -62,50 +64,50 @@ implementation
 
 {$R *.dfm}
 
-procedure GetAllFiles( Path: string; Lb: TListBox );
-var
-sRec: TSearchRec;
-isFound: boolean;
-begin
-isFound := FindFirst( Path + С\*.*Т, faAnyFile, sRec ) = 0;
-while isFound do
-begin
-if ( sRec.Name <> С.Т ) and ( sRec.Name <> С..Т ) then
-begin
-if ( sRec.Attr and faDirectory ) = faDirectory then
-GetAllFiles( Path + С\Т + sRec.Name, Lb );
-Lb.Items.Add( Path + С\Т + sRec.Name );
-end;
-Application.ProcessMessages;
-isFound := FindNext( sRec ) = 0;
-end;
-FindClose( sRec );
-end;
+//procedure GetAllFiles( Path: string; Lb: TListBox );
+//var
+//sRec: TSearchRec;
+//isFound: boolean;
+//begin
+//isFound := FindFirst( Path + С\*.*Т, faAnyFile, sRec ) = 0;
+//while isFound do
+//begin
+//if ( sRec.Name <> С.Т ) and ( sRec.Name <> С..Т ) then
+//begin
+//if ( sRec.Attr and faDirectory ) = faDirectory then
+//GetAllFiles( Path + С\Т + sRec.Name, Lb );
+//Lb.Items.Add( Path + С\Т + sRec.Name );
+//end;
+//Application.ProcessMessages;
+//isFound := FindNext( sRec ) = 0;
+//end;
+//FindClose( sRec );
+//end;
 
 procedure TFormMain.WMDropFiles(var Msg: TMessage);
-Var
-Filename: array[0..256] of char;
-begin 
+var
+  Filename: array[0..256] of char;
+begin
 
-DragQueryFile(THandle(Msg.WParam),0,Filename,SizeOf(Filename));
-// “еперь в переменной Filename будет находитьс€ путь 
-// к перетаскиваемому файлу. ƒалее вы можете выполн€ть с этим файлом, зна€ 
-// его путь, все что угодно.
+  DragQueryFile(THandle(Msg.WParam), 0, Filename, SizeOf(Filename));
+  // “еперь в переменной Filename будет находитьс€ путь
+  // к перетаскиваемому файлу. ƒалее вы можете выполн€ть с этим файлом, зна€
+  // его путь, все что угодно.
 
-//Ќапример: «агрузить его в Memo 
-//Memo1.lines.loadfromfile(Filename);
+  //Ќапример: «агрузить его в Memo
+  //Memo1.lines.loadfromfile(Filename);
 
-//¬ывод имени файла
-filePath := Filename;
-LabelFilePath.Caption := 'ѕуть к файлу: '+filePath;
-themeName := copy(filePath, LastDelimiter('/\', filePath)+1 ,Length(filePath));
-themeName := copy(themeName, 1 , LastDelimiter('.', themeName)-1);
-LabelFileName.Caption := '»м€ текущего файла: '+themeName;
-FormMain.Width := FormMain.LabelFilePath.Width + FormMain.LabelFilePath.Left + 20;
+  //¬ывод имени файла
+  filePath := Filename;
+  LabelFilePath.Caption := 'ѕуть к файлу: ' + filePath;
+  themeName := copy(filePath, LastDelimiter('/\', filePath) + 1, Length(filePath));
+  themeName := copy(themeName, 1, LastDelimiter('.', themeName) - 1);
+  LabelFileName.Caption := '»м€ текущего файла: ' + themeName;
+  FormMain.Width := FormMain.LabelFilePath.Width + FormMain.LabelFilePath.Left + 20;
 
-//—ообщаем об окончании претаскивани€ 
-DragFinish(THandle(Msg.WParam));
-GetAllFiles(filePath, FormMain.ListBoxFileList);
+  //—ообщаем об окончании претаскивани€
+  DragFinish(THandle(Msg.WParam));
+  //GetAllFiles(filePath, FormMain.ListBoxFileList);
 end;
 
 function AddTheme(themeName: string): integer;
@@ -154,13 +156,13 @@ end;
 
 procedure TFormMain.ButtonOpenClick(Sender: TObject);
 var
- Question: string;
- i, curRow, curCol, questionNum, themeNum, questCount, ansCount, isRight: integer;
- ansArray : Array[1..20] of string;
+  Question: string;
+  i, curRow, curCol, questionNum, themeNum, questCount, ansCount, isRight: integer;
+  ansArray: array[1..20] of string;
 begin
   FormMain.LabelStatus.Caption := '—татус: обработка...';
   Excel := CreateOleObject('Excel.Application');
-  Excel.Workbooks.Open[filePath];//, 0, True];
+  Excel.Workbooks.Open[filePath]; //, 0, True];
   //Excel.Visible := True;
   //ѕодготавливаем вопрос и ответы дл€ базы
   FormMain.IBDatabaseImport.Connected := true;
@@ -171,46 +173,46 @@ begin
   curCol := 2;
   curRow := 2;
   Question := Trim(Excel.Cells[curRow, curCol]);
-  while('' <> Question) do
+  while ('' <> Question) do
   begin
     //¬вод в тему нового вопроса
-    i:=0;
+    i := 0;
     questionNum := AddQuestion(themeNum, Question);
-    questCount := questCount+1;
+    questCount := questCount + 1;
     //¬вод вариантов ответов к текущему вопросу
     //‘ормирование массива ответов
     ansCount := 0;
     repeat
-    begin
-      i:=i+1;//counting size of answers array
-      curCol := curCol+1;//ѕереход к следующему ответу
-      ansArray[i] := Trim(Excel.Cells[curRow, curCol]);
-    end
-    until('' = ansArray[i]);
+      begin
+        i := i + 1; //counting size of answers array
+        curCol := curCol + 1; //ѕереход к следующему ответу
+        ansArray[i] := Trim(Excel.Cells[curRow, curCol]);
+      end
+    until ('' = ansArray[i]);
     //¬вод ответов в базу данных
-    i:= 1;
-    while('' <> ansArray[i]) do
+    i := 1;
+    while ('' <> ansArray[i]) do
     begin
-      if('+' = ansArray[i][1]) then
-        begin
-          isRight := 1;
-          ansArray[i] := Trim(copy(ansArray[i], 2, Length(ansArray[i])-1));
-        end
-        else
-          isRight := 0;
+      if ('+' = ansArray[i][1]) then
+      begin
+        isRight := 1;
+        ansArray[i] := Trim(copy(ansArray[i], 2, Length(ansArray[i]) - 1));
+      end
+      else
+        isRight := 0;
       AddAnswer(questionNum, ansArray[i], isRight);
-      ansCount := ansCount+1;//counting answers
-      i:= i+1;
+      ansCount := ansCount + 1; //counting answers
+      i := i + 1;
     end;
-    SetAnsCout(questionNum, ansCount);//”становка количества ответов дл€ вопроса
+    SetAnsCout(questionNum, ansCount); //”становка количества ответов дл€ вопроса
     //ѕереход к следующему вопросу
-    curRow := curRow+1;
+    curRow := curRow + 1;
     curCol := 2;
     Question := Trim(Excel.Cells[curRow, curCol]);
     FormMain.LabelCurrentQuestion.Caption := 'Ќомер текущего вопроса: ' + IntToStr(questCount);
     Application.ProcessMessages;
-  end;//end of theme
-  SetQuestCout(themeNum, questCount);//”становка количества вопросов в теме
+  end; //end of theme
+  SetQuestCout(themeNum, questCount); //”становка количества вопросов в теме
   //«акрытие Excel
   Excel.ActiveWorkbook.Close;
   Excel.Application.Quit;
@@ -226,7 +228,50 @@ end;
 
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
-  DragAcceptFiles(Handle,True);
+  DragAcceptFiles(Handle, True);
+end;
+
+procedure InsertStudent(var StudDB: TIBDatabase; FIO: string; NGR: string; FAK: string; N_FAK: string; LOCK_SK: integer);
+var
+  StudIns: TIBQuery;
+begin
+  StudIns := TIBQuery.Create(StudDB);
+  StudIns.SQL.Clear;
+  StudIns.SQL.Add('insert into spisok_st(fio, ngr, fak, n_fak, lock_st)values(''' + FIO + ''',''' + NGR + ''', ''' + FAK + ''', ' + N_FAK + ', ' + IntToStr(LOCK_SK) + ')');
+  StudIns.ExecSQL;
+  StudIns.Transaction.CommitRetaining;
+  StudIns.Close;
+end;
+
+procedure TFormMain.ButtonPutStudentsClick(Sender: TObject);
+var
+  FIO, NGR, FAK, N_FAK: string;
+  curCol, curRow: integer;
+begin
+  FormMain.LabelStatus.Caption := '—татус: обработка...';
+  Excel := CreateOleObject('Excel.Application');
+  Excel.Workbooks.Open[filePath]; //, 0, True];
+  FormMain.IBDatabaseImport.Connected := true;
+  curCol := 1;
+  curRow := 1;
+  FIO := Trim(Excel.Cells[curRow, curCol]);
+  NGR := Trim(Excel.Cells[curRow, curCol + 1]);
+  FAK := Trim(Excel.Cells[curRow, curCol + 2]);
+  N_FAK := Trim(Excel.Cells[curRow, curCol + 3]);
+  while ('' <> FIO) do
+  begin
+    InsertStudent(FormMain.IBDatabaseImport, FIO, NGR, FAK, N_FAK, 1);
+    curRow := curRow + 1;
+    FIO := Trim(Excel.Cells[curRow, curCol]);
+    NGR := Trim(Excel.Cells[curRow, curCol + 1]);
+    FAK := Trim(Excel.Cells[curRow, curCol + 2]);
+    N_FAK := Trim(Excel.Cells[curRow, curCol + 3]);
+  end;
+  //«акрытие Excel
+  Excel.ActiveWorkbook.Close;
+  Excel.Application.Quit;
+  FormMain.LabelStatus.Caption := '—татус: ожидание.';
 end;
 
 end.
+

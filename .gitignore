@@ -1,6 +1,12 @@
 *.xls
 *.exe
 *.~*
+*.xlsx
+*.doc
+*.docx
+*.dot
+*.gdb
+*.xlt
 
 #################
 ## Eclipse
